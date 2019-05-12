@@ -14,8 +14,10 @@ const SCREENS = {
 	TITLE: 'title'
 };
 
-export default function Game(canvas) {
+export default function Game(canvas, onScoreUpdate = () => null) {
 	// bind public methods
+	this.enableKeyboardControls = this.enableKeyboardControls.bind(this);
+	this.disableKeyboardControls = this.disableKeyboardControls.bind(this);
 	this.play = this.play.bind(this);
 	this.pause = this.pause.bind(this);
 	this.up = this.up.bind(this);
@@ -28,13 +30,18 @@ export default function Game(canvas) {
 
 	Canvas.load(canvas);
 	this.state = this.createNewGameState();
-	EventBus.on(events.FOOD_EATEN, () => { this.state.score += 10; });
-	EventBus.on(events.WORM_DEAD, () => { this.state = this.createNewGameState(); });
 
-	// bind handlePlayerInput here so we can remove the event listener later
-	this.handlePlayerInput = this.handlePlayerInput.bind(this);
-	window.addEventListener('keydown', this.handlePlayerInput);
+	EventBus.on(events.FOOD_EATEN, () => {
+		this.state.score += 1;
+		onScoreUpdate(this.state.score);
+	});
+	EventBus.on(events.WORM_DEAD, () => {
+		this.state = this.createNewGameState();
+		onScoreUpdate(this.state.score);
+	});
 
+	// bind handleKeyboardInput here so we can add and remove the event listener later
+	this.handleKeyboardInput = this.handleKeyboardInput.bind(this);
 	this.doGameLoop();
 }
 
@@ -47,11 +54,12 @@ Game.prototype.createNewGameState = function() {
 	}
 
 	return {
+		// the order of actors determines their render order
 		actors: {
-			worm: new Worm(),
-			bullets: [],
 			portal1,
 			portal2,
+			worm: new Worm(),
+			bullets: [],
 			food: new Food()
 		},
 		score: 0,
@@ -131,12 +139,6 @@ Game.prototype.renderGame = function() {
 			actor.draw();
 		}
 	}
-
-	Canvas.drawText(`Score: ${this.state.score}`, 0, 0, {
-		font: `${Config.font.size} ${Config.font.family}`,
-		fillStyle: Config.font.color,
-		textBaseline: 'hanging'
-	});
 };
 
 Game.prototype.renderPause = function() {
@@ -185,10 +187,10 @@ Game.prototype.doGameLoop = function(frameTs = 0) {
 	window.requestAnimationFrame((frameTs) => this.doGameLoop(frameTs));
 };
 
-Game.prototype.handlePlayerInput = function(e) {
+Game.prototype.handleKeyboardInput = function(e) {
 	switch (e.keyCode) {
 		case Config.controls.pause:
-			this.pause();
+			this.state.activeScreen === SCREENS.GAME ? this.pause() : this.play();
 			break;
 		case Config.controls.left:
 			this.left();
@@ -209,7 +211,6 @@ Game.prototype.handlePlayerInput = function(e) {
 			this.fire2();
 			break;
 		default:
-			this.play();
 			break;
 	}
 };
@@ -217,6 +218,14 @@ Game.prototype.handlePlayerInput = function(e) {
 // ----------------------------------
 // Public methods for a Game instance
 // ----------------------------------
+
+Game.prototype.enableKeyboardControls = function() {
+	window.addEventListener('keydown', this.handleKeyboardInput);
+};
+
+Game.prototype.disableKeyboardControls = function() {
+	window.removeEventListener('keydown', this.handleKeyboardInput);
+};
 
 // note that play() is called by every control input function
 // this is because every control input should also unpause or begin the game
@@ -229,8 +238,6 @@ Game.prototype.play = function() {
 Game.prototype.pause = function() {
 	if (this.state.activeScreen === SCREENS.GAME) {
 		this.state.activeScreen = SCREENS.PAUSE;
-	} else {
-		this.play();
 	}
 };
 
@@ -277,7 +284,7 @@ Game.prototype.fire2 = function() {
 };
 
 Game.prototype.end = function() {
-	window.removeEventListener('keydown', this.handlePlayerInput);
+	this.disableKeyboardControls();
 	EventBus.clear();
 	Canvas.unload();
 };
