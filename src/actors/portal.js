@@ -1,25 +1,23 @@
-import Actor from './actor';
-import Rect from '../lib/rect';
-import EventBus from '../lib/event-bus';
-import Config from '../config';
-import Canvas from '../lib/canvas';
-import {directions, events} from '../lib/constants';
+import Actor from './actor.js';
+import Rect from '../lib/rect.js';
+import Config from '../config.js';
+import {directions, events} from '../lib/constants.js';
 
-export default function Portal(pos, dir, color) {
+export default function Portal(eventBus, pos, dir, color) {
 	this.pos = pos;
 	this.dir = dir;
 	this.color = color;
 	this.bounds = new Rect(pos.x, pos.y, this.w, this.h);
 
-	EventBus.on(events.BULLET_OFFSCREEN, this.move.bind(this));
+	eventBus.on(events.BULLET_OFFSCREEN, this.move.bind(this));
 }
 
 Portal.prototype = Object.create(Actor.prototype);
 
 Portal.prototype.constructor = Portal;
 
-Portal.prototype.draw = function() {
-	Canvas.drawRect(this.color, this.pos.x, this.pos.y, this.w, this.h);
+Portal.prototype.draw = function(canvas) {
+	canvas.drawRect(this.color, this.pos.x, this.pos.y, this.w, this.h);
 };
 
 Portal.prototype.move = function(bullet) {

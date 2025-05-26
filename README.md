@@ -34,3 +34,10 @@ game.down();
 game.fire1();
 game.fire2();
 ```
+
+For local development, run
+```
+npm run serve
+```
+
+and navigate to `localhost:3000` in your web browser.

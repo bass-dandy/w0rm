@@ -2,4 +2,4 @@ export default function Actor() {}
 
 Actor.prototype.draw = function() {};
 
-Actor.prototype.update = function() {};
+Actor.prototype.update = function(canvas) {};

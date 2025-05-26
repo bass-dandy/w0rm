@@ -1,18 +1,18 @@
-import Actor from './actor';
-import Segment from './segment';
-import EventBus from '../lib/event-bus';
-import Vector from '../lib/vector';
-import Config from '../config';
-import {directions, events} from '../lib/constants';
+import Actor from './actor.js';
+import Segment from './segment.js';
+import Vector from '../lib/vector.js';
+import Config from '../config.js';
+import {directions, events} from '../lib/constants.js';
 
-export default function Worm() {
+export default function Worm(eventBus) {
 	const screenMiddle = Math.floor(Config.scene.cellCount / 2);
 	this.tail = [new Segment(new Vector(screenMiddle, screenMiddle))];
 	this.dir = directions.UP;
 	this.head = this.tail[0];
 	this.segmentsToAdd = 0;
+	this.eventBus = eventBus;
 
-	EventBus.on(events.FOOD_EATEN, () => { this.segmentsToAdd += Config.worm.growthRate; });
+	this.eventBus.on(events.FOOD_EATEN, () => { this.segmentsToAdd += Config.worm.growthRate; });
 }
 
 Worm.prototype = Object.create(Actor.prototype);
@@ -86,10 +86,10 @@ Worm.prototype.update = function() {
 	}
 
 	if (this.isDead) {
-		EventBus.emit(events.WORM_DEAD);
+		this.eventBus.emit(events.WORM_DEAD);
 	}
 };
 
-Worm.prototype.draw = function() {
-	this.tail.forEach((seg) => seg.draw());
+Worm.prototype.draw = function(canvas) {
+	this.tail.forEach((seg) => seg.draw(canvas));
 };

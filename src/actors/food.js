@@ -1,18 +1,16 @@
-import Actor from './actor';
-import Config from '../config';
-import EventBus from '../lib/event-bus';
-import Rect from '../lib/rect';
-import Vector from '../lib/vector';
-import Canvas from '../lib/canvas';
-import {events} from '../lib/constants';
+import Actor from './actor.js';
+import Config from '../config.js';
+import Rect from '../lib/rect.js';
+import Vector from '../lib/vector.js';
+import {events} from '../lib/constants.js';
 
 const SIZE = 1;
 
-export default function Food() {
+export default function Food(eventBus) {
 	this.pos = new Vector();
 	this.bounds = new Rect(this.pos.x, this.pos.y, SIZE, SIZE);
 
-	EventBus.on(events.FOOD_EATEN, this.randomizePos.bind(this));
+	eventBus.on(events.FOOD_EATEN, this.randomizePos.bind(this));
 	this.randomizePos();
 }
 
@@ -32,6 +30,6 @@ Food.prototype.randomizePos = function() {
 	this.bounds.moveTo(this.pos.x, this.pos.y);
 };
 
-Food.prototype.draw = function() {
-	Canvas.drawRect(Config.food.color, this.pos.x, this.pos.y, SIZE, SIZE);
+Food.prototype.draw = function(canvas) {
+	canvas.drawRect(Config.food.color, this.pos.x, this.pos.y, SIZE, SIZE);
 };

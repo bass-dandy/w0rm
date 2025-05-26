@@ -1,12 +1,12 @@
-import Bullet from './actors/bullet';
-import Food from './actors/food';
-import Portal from './actors/portal';
-import Worm from './actors/worm';
-import Config from './config';
-import EventBus from './lib/event-bus';
-import Vector from './lib/vector';
-import {directions, events} from './lib/constants';
-import Canvas from './lib/canvas';
+import Bullet from './actors/bullet.js';
+import Food from './actors/food.js';
+import Portal from './actors/portal.js';
+import Worm from './actors/worm.js';
+import Config from './config.js';
+import EventBus from './lib/event-bus.js';
+import Vector from './lib/vector.js';
+import {directions, events} from './lib/constants.js';
+import Canvas from './lib/canvas.js';
 
 const SCREENS = {
 	GAME: 'game',
@@ -26,16 +26,17 @@ export default function Game(canvas, onScoreUpdate = () => null) {
 	this.left = this.left.bind(this);
 	this.fire1 = this.fire1.bind(this);
 	this.fire2 = this.fire2.bind(this);
-	this.end = this.end.bind(this);
+	this.destroy = this.destroy.bind(this);
 
-	Canvas.load(canvas);
+	this.canvas = new Canvas(canvas);
+	this.eventBus = new EventBus();
 	this.state = this.createNewGameState();
 
-	EventBus.on(events.FOOD_EATEN, () => {
+	this.eventBus.on(events.FOOD_EATEN, () => {
 		this.state.score += 1;
 		onScoreUpdate(this.state.score);
 	});
-	EventBus.on(events.WORM_DEAD, () => {
+	this.eventBus.on(events.WORM_DEAD, () => {
 		this.state = this.createNewGameState();
 		onScoreUpdate(this.state.score);
 	});
@@ -58,9 +59,9 @@ Game.prototype.createNewGameState = function() {
 		actors: {
 			portal1,
 			portal2,
-			worm: new Worm(),
+			worm: new Worm(this.eventBus),
 			bullets: [],
-			food: new Food()
+			food: new Food(this.eventBus)
 		},
 		score: 0,
 		shouldTween: false,
@@ -91,14 +92,14 @@ Game.prototype.randomizePortal = function(color) {
 		pos = new Vector(oneUnitFromFarEdge, offset);
 	}
 
-	return new Portal(pos, dir, color);
+	return new Portal(this.eventBus, pos, dir, color);
 };
 
 Game.prototype.doCollisions = function() {
 	const {worm, bullets, food, portal1, portal2} = this.state.actors;
 
 	if (worm.isColliding(food)) {
-		EventBus.emit(events.FOOD_EATEN);
+		this.eventBus.emit(events.FOOD_EATEN);
 	}
 
 	if (worm.isColliding(portal1) && worm.dir.equals(portal1.dir.multiply(-1))) {
@@ -129,23 +130,23 @@ Game.prototype.update = function() {
 };
 
 Game.prototype.renderGame = function() {
-	Canvas.clear();
+	this.canvas.clear();
 
 	for (const actorKey in this.state.actors) {
 		const actor = this.state.actors[actorKey];
 		if (Array.isArray(actor)) {
-			actor.forEach((e) => e.draw());
+			actor.forEach((e) => e.draw(this.canvas));
 		} else {
-			actor.draw();
+			actor.draw(this.canvas);
 		}
 	}
 };
 
 Game.prototype.renderPause = function() {
-	Canvas.clear();
+	this.canvas.clear();
 	const gridMiddle = Math.floor(Config.scene.cellCount / 2);
 
-	Canvas.drawText('Paused', gridMiddle, gridMiddle, {
+	this.canvas.drawText('Paused', gridMiddle, gridMiddle, {
 		font: `${Config.font.size} ${Config.font.family}`,
 		fillStyle: Config.font.color,
 		textBaseline: 'middle',
@@ -154,12 +155,12 @@ Game.prototype.renderPause = function() {
 };
 
 Game.prototype.renderTitle = function() {
-	Canvas.clear();
+	this.canvas.clear();
 	const gridMiddle = Math.floor(Config.scene.cellCount / 2);
 
-	Canvas.drawImage(Config.titleScreen.src, 0, 0, Config.scene.cellCount, Config.scene.cellCount);
+	this.canvas.drawImage(Config.titleScreen.src, 0, 0, Config.scene.cellCount, Config.scene.cellCount);
 
-	Canvas.drawText('Press any key to begin', gridMiddle, Config.scene.cellCount, {
+	this.canvas.drawText('Press any key to begin', gridMiddle, Config.scene.cellCount, {
 		font: `${Config.font.size} ${Config.font.family}`,
 		fillStyle: Config.font.color,
 		textBaseline: 'bottom',
@@ -168,10 +169,6 @@ Game.prototype.renderTitle = function() {
 };
 
 Game.prototype.doGameLoop = function(frameTs = 0) {
-	if (!Canvas.isLoaded) {
-		return;
-	}
-
 	if (this.state.activeScreen === SCREENS.PAUSE) {
 		this.renderPause();
 	} else if (this.state.activeScreen === SCREENS.TITLE) {
@@ -267,7 +264,7 @@ Game.prototype.fire1 = function() {
 	const {worm, bullets} = this.state.actors;
 	if (worm.canShoot) {
 		bullets.push(
-			new Bullet(worm.head.pos, worm.dir, Config.portal.color1)
+			new Bullet(this.eventBus, worm.head.pos, worm.dir, Config.portal.color1)
 		);
 	}
 };
@@ -278,13 +275,12 @@ Game.prototype.fire2 = function() {
 	const {worm, bullets} = this.state.actors;
 	if (worm.canShoot) {
 		bullets.push(
-			new Bullet(worm.head.pos, worm.dir, Config.portal.color2)
+			new Bullet(this.eventBus, worm.head.pos, worm.dir, Config.portal.color2)
 		);
 	}
 };
 
-Game.prototype.end = function() {
+Game.prototype.destroy = function() {
 	this.disableKeyboardControls();
-	EventBus.clear();
-	Canvas.unload();
+	this.eventBus.clear();
 };

@@ -1,4 +1,4 @@
-import Vector from './vector';
+import Vector from './vector.js';
 
 export const directions = {
 	UP: new Vector(0, -1),

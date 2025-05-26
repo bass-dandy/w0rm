@@ -1,7 +1,6 @@
-import Actor from './actor';
-import Config from '../config';
-import Rect from '../lib/rect';
-import Canvas from '../lib/canvas';
+import Actor from './actor.js';
+import Config from '../config.js';
+import Rect from '../lib/rect.js';
 
 const SIZE = 1;
 
@@ -13,8 +12,8 @@ export default function Segment(pos) {
 
 Segment.prototype = Object.create(Actor.prototype);
 
-Segment.prototype.draw = function() {
-	Canvas.drawRect(this.color, this.pos.x, this.pos.y, SIZE, SIZE);
+Segment.prototype.draw = function(canvas) {
+	canvas.drawRect(this.color, this.pos.x, this.pos.y, SIZE, SIZE);
 };
 
 Segment.prototype.tween = function(dir) {
