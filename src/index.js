@@ -169,6 +169,8 @@ Game.prototype.renderTitle = function() {
 };
 
 Game.prototype.doGameLoop = function(frameTs = 0) {
+	if (!this.canvas) return;
+
 	if (this.state.activeScreen === SCREENS.PAUSE) {
 		this.renderPause();
 	} else if (this.state.activeScreen === SCREENS.TITLE) {
@@ -283,4 +285,5 @@ Game.prototype.fire2 = function() {
 Game.prototype.destroy = function() {
 	this.disableKeyboardControls();
 	this.eventBus.clear();
+	this.canvas = null;
 };
