@@ -5,7 +5,7 @@ export default function Canvas(canvas) {
 }
 
 Canvas.prototype.toCanvas = function(gridUnits) {
-	const gridToCanvas = this.canvas.clientWidth / Config.scene.cellCount;
+	const gridToCanvas = this.canvas.width / Config.scene.cellCount;
 	return gridUnits * gridToCanvas;
 };
 
@@ -45,5 +45,5 @@ Canvas.prototype.drawText = function(text, x, y, opts = {}) {
 Canvas.prototype.clear = function() {
 	const ctx = this.canvas.getContext('2d');
 	ctx.fillStyle = Config.scene.color;
-	ctx.fillRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
+	ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 };
