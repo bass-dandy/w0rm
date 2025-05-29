@@ -1,24 +1,88 @@
 <!DOCTYPE html>
 <html>
+	<title>w0rm</title>
 	<head>
 		<style>
 			body, html {
 				padding: 0;
 				margin: 0;
 				background-color: black;
+				font-family: arial;
 			}
-			.canvas-wrapper {
-				background-color: white;
+			h1, h2 {
+				margin: 0 0 8px;
+				padding: 0;
+			}
+			h1 {
+				font-size: 3rem;
+			}
+			h2 {
+				font-size: 1.25rem;
+			}
+			a, .blue {
+				color: #1daeec;
+			}
+			a:hover, .orange {
+				color: #fc6a21;
+			}
+			.center-content {
 				position: absolute;
 				top: 50%;
 				left: 50%;
 				transform: translate(-50%, -50%);
 			}
+			.info {
+				display: flex;
+				justify-content: space-between;
+				color: white;
+				font-size: 1rem;
+				margin-bottom: 16px;
+			}
+			.title {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+			}
+			.links {
+				display: flex;
+				gap: 8px;
+				margin-top: 4px;
+			}
+			.controls {
+				padding: 4px;
+				border: 1px solid white;
+			}
+			.controls dl {
+				list-style-type: none;
+				margin: 0;
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+			}
 		</style>
 	</head>
 	<body>
-		<div class="canvas-wrapper">
-			<canvas id="canvas" width="500" height="500" />
+		<div class="center-content">
+			<div class="info">
+				<div class="title">
+					<h1>w<span class="blue">0</span>rm</h1>
+					<div class="links">
+						<a href="https://github.com/bass-dandy/w0rm" target="__blank">github</a>
+						<a href="https://www.npmjs.com/package/@bass_dandy/w0rm" target="__blank">npm</a>
+					</div>
+				</div>
+				<div class="controls">
+					<h2>Controls</h2>
+					<dl>
+						<dt>arrow keys:</dt>
+						<dd>move</dd>
+						<dt><span class="orange">z</span>, <span class="blue">x</span>:</dt>
+						<dd>shoot portals</dd>
+						<dt>esc:</dt>
+						<dd>pause</dd>
+					</dl>
+				</div>
+			</div>
+			<canvas id="canvas" width="600" height="600" />
 		</div>
 		<script type="module">
 			import WormGame from './src/index.js';
