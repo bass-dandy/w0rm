@@ -160,7 +160,7 @@ Game.prototype.renderTitle = function() {
 
 	this.canvas.drawImage(Config.titleScreen.src, 0, 0, Config.scene.cellCount, Config.scene.cellCount);
 
-	this.canvas.drawText('Press any key to begin', gridMiddle, Config.scene.cellCount, {
+	this.canvas.drawText('Press shoot to begin', gridMiddle, Config.scene.cellCount, {
 		font: `${Config.font.size} ${Config.font.family}`,
 		fillStyle: Config.font.color,
 		textBaseline: 'bottom',
@@ -187,30 +187,40 @@ Game.prototype.doGameLoop = function(frameTs = 0) {
 };
 
 Game.prototype.handleKeyboardInput = function(e) {
-	switch (e.keyCode) {
-		case Config.controls.pause:
-			this.state.activeScreen === SCREENS.GAME ? this.pause() : this.play();
-			break;
-		case Config.controls.left:
-			this.left();
-			break;
-		case Config.controls.up:
-			this.up();
-			break;
-		case Config.controls.right:
-			this.right();
-			break;
-		case Config.controls.down:
-			this.down();
-			break;
-		case Config.controls.fire1:
-			this.fire1();
-			break;
-		case Config.controls.fire2:
-			this.fire2();
-			break;
-		default:
-			break;
+	if (this.state.activeScreen === SCREENS.TITLE) {
+		if (e.keyCode === Config.controls.fire1 || e.keyCode === Config.controls.fire2) {
+			this.play();
+		}
+	} else if (this.state.activeScreen === SCREENS.PAUSE) {
+		if (e.keyCode === Config.controls.pause) {
+			this.play();
+		}
+	} else {
+		switch (e.keyCode) {
+			case Config.controls.pause:
+				this.pause();
+				break;
+			case Config.controls.left:
+				this.left();
+				break;
+			case Config.controls.up:
+				this.up();
+				break;
+			case Config.controls.right:
+				this.right();
+				break;
+			case Config.controls.down:
+				this.down();
+				break;
+			case Config.controls.fire1:
+				this.fire1();
+				break;
+			case Config.controls.fire2:
+				this.fire2();
+				break;
+			default:
+				break;
+		}
 	}
 };
 
@@ -226,8 +236,6 @@ Game.prototype.disableKeyboardControls = function() {
 	window.removeEventListener('keydown', this.handleKeyboardInput);
 };
 
-// note that play() is called by every control input function
-// this is because every control input should also unpause or begin the game
 Game.prototype.play = function() {
 	if (this.state.activeScreen === SCREENS.TITLE || this.state.activeScreen === SCREENS.PAUSE) {
 		this.state.activeScreen = SCREENS.GAME;
@@ -241,28 +249,22 @@ Game.prototype.pause = function() {
 };
 
 Game.prototype.up = function() {
-	this.play();
 	this.state.actors.worm.setDir(directions.UP);
 };
 
 Game.prototype.right = function() {
-	this.play();
 	this.state.actors.worm.setDir(directions.RIGHT);
 };
 
 Game.prototype.down = function() {
-	this.play();
 	this.state.actors.worm.setDir(directions.DOWN);
 };
 
 Game.prototype.left = function() {
-	this.play();
 	this.state.actors.worm.setDir(directions.LEFT);
 };
 
 Game.prototype.fire1 = function() {
-	this.play();
-
 	const {worm, bullets} = this.state.actors;
 	if (worm.canShoot) {
 		bullets.push(
@@ -272,8 +274,6 @@ Game.prototype.fire1 = function() {
 };
 
 Game.prototype.fire2 = function() {
-	this.play();
-
 	const {worm, bullets} = this.state.actors;
 	if (worm.canShoot) {
 		bullets.push(
