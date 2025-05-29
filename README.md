@@ -15,7 +15,7 @@ game.enableKeyboardControls();
 game.disableKeyboardControls();
 
 // remove event listeners for default keyboard controls, clear game state, unload canvas
-game.end();
+game.destroy();
 ```
 
 If you would like to use alternate controls, game instances expose methods for direct control:
