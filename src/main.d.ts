@@ -1,4 +1,4 @@
-declare class Game {
+export default class Game {
 	constructor(
 		canvas: HTMLCanvasElement,
 		onScoreUpdate?: (score: number) => void
