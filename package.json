@@ -1,6 +1,6 @@
 {
   "name": "@bass_dandy/w0rm",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "author": "Christian Dinh",
   "description": "Portal Snake",
   "license": "ISC",
@@ -11,8 +11,9 @@
   "files": [
     "dist"
   ],
+  "types": "dist/main.d.ts",
   "scripts": {
-    "build": "babel src --out-dir dist",
+    "build": "babel src --out-dir dist && cp src/main.d.ts dist",
     "prepublishOnly": "npm run build",
     "serve": "serve"
   },
